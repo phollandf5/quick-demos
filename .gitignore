@@ -8,6 +8,8 @@
 # .tfvars files
 *.tfvars
 
+# Settings files
+
 *.sublime-*
 pdf/*
 **/settings.json
