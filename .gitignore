@@ -7,3 +7,12 @@
 
 # .tfvars files
 *.tfvars
+
+*.sublime-*
+pdf/*
+**/settings.json
+python*
+*.retry
+
+# password files
+**/password*
