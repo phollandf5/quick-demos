@@ -1,3 +1,3 @@
   # AWS API Credentials
-    ec2_access_key: 
-    ec2_secret_key: 
+    ec2_access_key: test
+    ec2_secret_key: test
