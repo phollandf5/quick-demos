@@ -17,8 +17,19 @@
 #------------------------------------------------------------------------------
 # Set variables 
 #------------------------------------------------------------------------------
+
+  # You need to create a file named aws_creds.yaml (update path below) with the following variables:
+  #
+  # az_subs_id: "--your-id-here--"
+  # az_client_id: "--your-id-here--"
+  # az_secret: "--your-secret-here--"
+  # az_tenant: "--your-tenant-here--"
+
+  # f5_admin_user: "--your-user-here--"
+  # f5_admin_pass: "--your-password-here--"
+
   vars_files:
-    - creds.yaml
+    - ../../creds/azure_creds.yaml
     
   vars:
 

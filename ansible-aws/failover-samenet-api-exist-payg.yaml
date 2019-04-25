@@ -11,14 +11,18 @@
 #------------------------------------------------------------------------------
 # Set variables 
 #------------------------------------------------------------------------------
+  
+  # You need to create a file named aws_creds.yaml (update path below) with the following variables:
+  #
+  #  ec2_access_key: "--your-key-here--"
+  #  ec2_secret_key: "--your-secret-here--"
+  #
   vars_files:
-    - creds.yaml
+    - ../../creds/aws_creds.yaml
+  
 
   vars:
 
-  # Deployment state (present or absent)
-
-    deploy_state: absent
 
   # SSH
     # This is the name of the SSH private key object in AWS
@@ -59,7 +63,7 @@
       name: "{{ vpc_name }}"
       cidr_block: "{{ vpc_cidr }}"
       region: "{{ aws_region }}"
-      state: "{{ deploy_state }}"
+      state: present
     register: create_vpc
 
 
@@ -75,7 +79,7 @@
       az: "{{ item.value.az }}"
       tags:
         Name: "{{ item.key }}"
-      state: "{{ deploy_state }}"
+      state: present
     with_dict: "{{ vpc_subnets }}"
     register: create_vpc_subnets
 
@@ -96,7 +100,7 @@
   - name: CREATE INTERNET GATEWAY
     ec2_vpc_igw:
       vpc_id: "{{ vpc_id }}"
-      state: "{{ deploy_state }}"
+      state: present
     register: create_gateway
 
 
@@ -109,7 +113,7 @@
   - name: CREATE ROUTE TABLE FOR PUBLIC SUBNETS
     ec2_vpc_route_table:
       vpc_id: "{{ vpc_id }}"
-      state: "{{ deploy_state }}"
+      state: present
       tags:
         Name: "{{ vpc_name }}-public"
       subnets:
@@ -127,7 +131,7 @@
   - name: CREATE ANSIBLE CFT DEPLOYMENT
     cloudformation:
       stack_name: "ansible-cft-failover-samenet-api-exist-payg"
-      state: "{{ deploy_state }}"
+      state: present
       region: "eu-west-2"
       disable_rollback: true
       template_url: "https://s3.amazonaws.com/f5-cft/f5-existing-stack-same-az-cluster-payg-2nic-bigip.template"
