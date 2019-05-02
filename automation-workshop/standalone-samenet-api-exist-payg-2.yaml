@@ -26,26 +26,27 @@
 
   # SSH
     # This is the name of the SSH private key object in AWS
-    sshKey: "arch-key-1"
+    sshKey: "arch_id_rsa"
     # This is the path to your local SSH private key located on your computer
     sshKeyPath:
 
   # AWS settings
     
-    uk_se_name: stephen archer
-    stack_name: F5-BIG-IP-LAB
+    uk_se_name: arch-
+    stack_name: ansible-standalone-bigip-demo-2
     aws_region: eu-west-2
+    subnet_start: "10.2"
 
-    vpc_name: "arch_ansible_cft_demo"
-    vpc_cidr: "10.3.0.0/16"
+    vpc_name: "{{ stack_name }}"
+    vpc_cidr: "{{ subnet_start }}.0.0/16"
     vpc_subnets:
       mgmt_a:
-        cidr: 10.3.1.0/24
+        cidr: "{{ subnet_start }}.1.0/24"
         az: "{{ aws_region }}a"
       traffic_a:
-        cidr: 10.3.11.0/24
+        cidr: "{{ subnet_start }}.11.0/24"
         az: "{{ aws_region }}a"
-
+    
 
 
 #------------------------------------------------------------------------------
@@ -107,7 +108,8 @@
   - name: "SET FACT: GATEWAY ID"
     set_fact:
       vpc_gateway_id: "{{ create_gateway.gateway_id }}"
- 
+
+
 
   # public route table that routes through the internet gateway -- attach it to our three public subnets
   - name: CREATE ROUTE TABLE FOR PUBLIC SUBNETS
@@ -130,11 +132,11 @@
 
   - name: CREATE ANSIBLE CFT DEPLOYMENT
     cloudformation:
-      stack_name: "ansible-cft-failover-samenet-api-exist-payg"
-      state: present
-      region: "eu-west-2"
+      stack_name: "{{ stack_name }}"
+      state: absent
+      region: "{{ aws_region }}"
       disable_rollback: true
-      template_url: "https://s3.amazonaws.com/f5-cft/f5-existing-stack-same-az-cluster-payg-2nic-bigip.template"
+      template_url: "https://s3.amazonaws.com/f5-cft/f5-existing-stack-payg-2nic-bigip.template"
       template_parameters:
         group:  "f5group"
         declarationUrl:  "none"
@@ -155,5 +157,12 @@
         instanceType:  "m5.xlarge"
         allowUsageAnalytics:  "Yes"
       tags:
-        Stack: "ansible-cft-failover-samenet-api-exist-payg"
+        Stack: "{{ stack_name }}"
         UK-SE: "{{ uk_se_name }}"
+
+
+
+
+
+
+

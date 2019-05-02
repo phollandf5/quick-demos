@@ -1,0 +1,175 @@
+#------------------------------------------------------------------------------
+# Azure ARM Ansible Playbook 
+#------------------------------------------------------------------------------
+
+- name: PROVISION VNET SUBNETS & F5 INSTANCES
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  
+
+  environment:
+    AZURE_SUBSCRIPTION_ID: "{{ az_subs_id }}"
+    AZURE_CLIENT_ID: "{{ az_client_id }}"
+    AZURE_SECRET: "{{ az_secret }}"
+    AZURE_TENANT: "{{ az_tenant }}"
+
+#------------------------------------------------------------------------------
+# Set variables 
+#------------------------------------------------------------------------------
+
+  # You need to create a file named azure_creds.yaml (update path below) with the following variables:
+  #
+  # az_subs_id: "--your-id-here--"
+  # az_client_id: "--your-id-here--"
+  # az_secret: "--your-secret-here--"
+  # az_tenant: "--your-tenant-here--"
+
+  # f5_admin_user: "--your-user-here--"
+  # f5_admin_pass: "--your-password-here--"
+
+  vars_files:
+    - ../../creds/azure_creds.yaml
+    
+  vars:
+
+    az_region: ukwest
+    rg_name: arch-ansible-rg-test
+    vnet_name: arch-ansible-vnet-test
+    vnet_cidr: "10.3.0.0/16"
+
+    vnet_subnets:
+      mgmt_a:
+        cidr: 10.3.1.0/24
+        az: ""
+      external_a:
+        cidr: 10.3.11.0/24
+        az: ""
+      internal_a:
+        cidr: 10.3.21.0/24
+        az: ""    
+
+
+
+#------------------------------------------------------------------------------
+# Start Tasks
+#------------------------------------------------------------------------------
+
+  tasks:
+
+  # VNET and Subnets & Resource Group
+
+  - name: CREATE RESOURCE GROUP
+    azure_rm_resourcegroup:
+      name: "{{ rg_name }}"
+      location: "{{ az_region }}"
+      tags:
+          testing: testing
+          delete: never
+
+  - name: CREATE VNET
+    azure_rm_virtualnetwork:
+      name: "{{ vnet_name }}"
+      resource_group: "{{ rg_name }}"
+      address_prefixes_cidr:
+          - "{{ vnet_cidr }}"
+      tags:
+          testing: demo
+          delete: on-exit
+
+  - name: CREATE SUBNET
+    azure_rm_subnet:
+      name: "{{ item.key }}"
+      virtual_network_name: "{{ vnet_name }}"
+      resource_group: "{{ rg_name }}"
+      address_prefix_cidr: "{{ item.value.cidr }}"
+    with_dict: "{{ vnet_subnets }}"
+    register: create_vnet_subnets
+
+
+  - name: LAUNCH ARM TEMPLATE INTO AZURE  
+    azure_rm_deployment:
+      state: absent
+      resource_group_name: "{{ rg_name }}"
+      template_link: "https://github.com/F5Networks/f5-azure-arm-templates/raw/master/supported/failover/same-net/via-api/n-nic/existing-stack/payg/azuredeploy.json"
+      location: "{{ az_region }}"
+      client_id: "{{ az_client_id }}"
+      tenant: "{{ az_tenant }}"
+      secret: "{{ az_secret }}"
+      parameters:
+        tenantId:
+          value: "{{ az_tenant }}"
+        clientId:
+          value: "{{ az_client_id }}"
+        servicePrincipalSecret:
+          value: "{{ az_secret }}"
+        adminUsername:
+          value: "{{ f5_admin_user }}"
+        authenticationType:
+          value: password
+        adminPasswordOrKey:
+          value: "{{ f5_admin_pass }}"
+        dnsLabel:
+          value: arch-f5
+        instanceName:
+          value: big-ip
+        instanceType:
+          value: Standard_DS3_v2
+        imageName:
+          value: Best25Mbps
+        bigIpVersion:
+          value: 13.1.100000
+        numberOfAdditionalNics:
+          value: 1
+        additionalNicLocation:
+          value: extra
+        numberOfExternalIps:
+          value: 1
+        vnetName:
+          value: "{{ vnet_name }}"
+        vnetResourceGroupName:
+          value: "{{ rg_name }}"
+        mgmtSubnetName:
+          value: mgmt_a
+        mgmtIpAddressRangeStart:
+          value: 10.3.1.10
+        externalSubnetName:
+          value: external_a
+        externalIpSelfAddressRangeStart:
+          value: 10.3.11.10
+        externalIpAddressRangeStart:
+          value: 10.3.11.100
+        internalSubnetName:
+          value: internal_a
+        internalIpAddressRangeStart:
+          value: 10.3.21.10
+        managedRoutes:
+          value: 0.0.0.0/0,10.1.4.0/24,10.1.5.0/24
+        ntpServer:
+          value: 0.pool.ntp.org
+        timeZone:
+          value: UTC
+        customImage:
+          value: OPTIONAL 
+        restrictedSrcAddress:
+          value: "*"
+        tagValues:
+          value:
+            application: APP
+            cost: COST
+            environment: ENV
+            group: GROUP
+            owner: OWNER
+        allowUsageAnalytics:
+          value: 'Yes'
+        #declarationUrl:  "NOT_SPECIFIED"
+
+#------------------------------------------------------------------------------
+# TS Curl
+#------------------------------------------------------------------------------
+
+#curl -kvu $CREDS "https://$IP/mgmt/shared/iapp/package-management-tasks" -H "Origin: https://$IP" -H 'Content-Type: application/json;charset=UTF-8' --data $DATA
+
+#------------------------------------------------------------------------------
+# End
+#------------------------------------------------------------------------------
