@@ -29,13 +29,13 @@
     vnet_cidr: "{{ subnet_start }}.0.0/16"
 
     vnet_subnets:
-      mgmt_a:
+      - name: mgmt_a
         cidr: "{{ subnet_start }}.1.0/24"
         az: "{{ az_region }}a"
-      external_a:
+      - name: external_a
         cidr: "{{ subnet_start }}.11.0/24"
         az: "{{ az_region }}a"
-      internal_a:
+      - name: internal_a
         cidr: "{{ subnet_start }}.21.0/24"
         az: "{{ az_region }}a"       
 

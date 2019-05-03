@@ -32,10 +32,10 @@
     vpc_name: "{{ uk_se_name }}-{{ stack_name }}"
     vpc_cidr: "{{ subnet_start }}.0.0/16"
     vpc_subnets:
-      mgmt_a:
+      - name: mgmt_a
         cidr: "{{ subnet_start }}.1.0/24"
         az: "{{ aws_region }}a"
-      traffic_a:
+      - name: traffic_a
         cidr: "{{ subnet_start }}.11.0/24"
         az: "{{ aws_region }}a"
 

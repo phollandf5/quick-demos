@@ -1,3 +1,4 @@
+---
 #------------------------------------------------------------------------------
 # Playbook to CREATE Azure demo environment. 
 #------------------------------------------------------------------------------
@@ -39,7 +40,6 @@
 
   tasks:
 
-  # VNET and Subnets & Resource Group
 
   - name: CREATE RESOURCE GROUP
     azure_rm_resourcegroup:
@@ -49,6 +49,7 @@
         automated: "{{ automation_tool }}"
         stack: "{{ stack_name }}"
         UK-SE: "{{ uk_se_name }}"
+
 
   - name: CREATE VNET
     azure_rm_virtualnetwork:
@@ -61,17 +62,18 @@
         stack: "{{ stack_name }}"
         UK-SE: "{{ uk_se_name }}"
 
+
   - name: CREATE SUBNET
     azure_rm_subnet:
-      name: "{{ item.key }}"
+      name: "{{ item.name }}"
       virtual_network_name: "{{ vnet_name }}"
       resource_group: "{{ rg_name }}"
-      address_prefix_cidr: "{{ item.value.cidr }}"
+      address_prefix_cidr: "{{ item.cidr }}"
       tags:
         automated: "{{ automation_tool }}"
         stack: "{{ stack_name }}"
         UK-SE: "{{ uk_se_name }}"
-    with_dict: "{{ vnet_subnets }}"
+    with_items: "{{ vnet_subnets }}"
     register: create_vnet_subnets
 
 
@@ -108,9 +110,9 @@
         bigIpVersion:
           value: 13.1.100000
         numberOfAdditionalNics:
-          value: 1
+          value: 0
         additionalNicLocation:
-          value: extra
+          value: OPTIONAL
         numberOfExternalIps:
           value: 1
         vnetName:
@@ -118,17 +120,17 @@
         vnetResourceGroupName:
           value: "{{ rg_name }}"
         mgmtSubnetName:
-          value: "{{ vnet_subnets.mgmt_a }}"
+          value: "{{ vnet_subnets[0].name }}"
         mgmtIpAddressRangeStart:
-          value: "{{ subnet_start }}.1.10}}"
+          value: "{{ subnet_start }}.1.10"
         externalSubnetName:
-          value: "{{ vnet_subnets.external_a }}"
+          value: "{{ vnet_subnets[1].name }}"
         externalIpSelfAddressRangeStart:
           value: "{{ subnet_start }}.11.10"
         externalIpAddressRangeStart:
           value: "{{ subnet_start }}.11.100"
         internalSubnetName:
-          value: "{{ vnet_subnets.internal_a }}"
+          value: "{{ vnet_subnets[2].name }}"
         internalIpAddressRangeStart:
           value: "{{ subnet_start }}.21.10"
         managedRoutes:
@@ -164,3 +166,4 @@
 #------------------------------------------------------------------------------
 # End
 #------------------------------------------------------------------------------
+...
