@@ -2,7 +2,7 @@
  
  ## Overview
 
- These playbooks are provided to spin up a quick demo environment up in Azure or AWS.  The configuration builds the following:
+ These playbooks are provided to spin up a quick demo environment up in Azure or AWS, and also to easily destroy the demo when done.  The configuration builds and destroys the following:
 
  - VNET or VPC
  - Subnets (Management and Dataplane)
@@ -10,10 +10,15 @@
  - Routing
  - A pair of BIG-IPs deployed with 2 NICs in HA 
 
- In AWS, the playbook will login to the deployed BIG-IPs and change/enable password authentication.
+ In AWS, the playbook will login to the deployed BIG-IPs and change/enable password authentication.  In Azure, passwords are enabled by default.
 
+ What these playbooks don't provide (yet):
 
- 
+ - Any test application server (I plan to automate a microservices app)
+ - AS3 configuration to create a virtual server and pool
+ - Automated TLS certs/keys
+ - F5 Cloud Services GSLBaaS
+ - F5 Silverline WAFaaS
 
 
 ## IMPORTANT!
