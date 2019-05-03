@@ -1,5 +1,5 @@
 #------------------------------------------------------------------------------
-# Azure ARM Ansible Playbook 
+# Playbook to CREATE Azure demo environment. 
 #------------------------------------------------------------------------------
 
 - name: PROVISION VNET SUBNETS & F5 INSTANCES
@@ -15,7 +15,7 @@
     AZURE_TENANT: "{{ az_tenant }}"
 
 #------------------------------------------------------------------------------
-# Set variables 
+# Load Variables from files 
 #------------------------------------------------------------------------------
 
   # You need to create a file named azure_creds.yaml (update path below) with the following variables:
@@ -30,26 +30,8 @@
 
   vars_files:
     - ../../creds/azure_creds.yaml
-    
-  vars:
-
-    az_region: ukwest
-    rg_name: arch-ansible-rg-test
-    vnet_name: arch-ansible-vnet-test
-    vnet_cidr: "10.3.0.0/16"
-
-    vnet_subnets:
-      mgmt_a:
-        cidr: 10.3.1.0/24
-        az: ""
-      external_a:
-        cidr: 10.3.11.0/24
-        az: ""
-      internal_a:
-        cidr: 10.3.21.0/24
-        az: ""    
-
-
+    - ./vars.yaml
+     
 
 #------------------------------------------------------------------------------
 # Start Tasks
@@ -64,8 +46,9 @@
       name: "{{ rg_name }}"
       location: "{{ az_region }}"
       tags:
-          testing: testing
-          delete: never
+        automated: "{{ automation_tool }}"
+        stack: "{{ stack_name }}"
+        UK-SE: "{{ uk_se_name }}"
 
   - name: CREATE VNET
     azure_rm_virtualnetwork:
@@ -74,8 +57,9 @@
       address_prefixes_cidr:
           - "{{ vnet_cidr }}"
       tags:
-          testing: demo
-          delete: on-exit
+        automated: "{{ automation_tool }}"
+        stack: "{{ stack_name }}"
+        UK-SE: "{{ uk_se_name }}"
 
   - name: CREATE SUBNET
     azure_rm_subnet:
@@ -83,6 +67,10 @@
       virtual_network_name: "{{ vnet_name }}"
       resource_group: "{{ rg_name }}"
       address_prefix_cidr: "{{ item.value.cidr }}"
+      tags:
+        automated: "{{ automation_tool }}"
+        stack: "{{ stack_name }}"
+        UK-SE: "{{ uk_se_name }}"
     with_dict: "{{ vnet_subnets }}"
     register: create_vnet_subnets
 
@@ -156,10 +144,13 @@
         tagValues:
           value:
             application: APP
-            cost: COST
-            environment: ENV
-            group: GROUP
-            owner: OWNER
+            cost: "SALES EMEA-UK 4261"
+            environment: Demo
+            group: "UK SE"
+            owner: "{{ uk_se_name }}"
+            automated: "{{ automation_tool }}"
+            stack: "{{ stack_name }}"
+            UK-SE: "{{ uk_se_name }}"
         allowUsageAnalytics:
           value: 'Yes'
         #declarationUrl:  "NOT_SPECIFIED"

@@ -13,7 +13,7 @@
     AWS_REGION: "{{ aws_region }}"
 
 #------------------------------------------------------------------------------
-# Set variables 
+# Load Variables from files 
 #------------------------------------------------------------------------------
   
   # You need to create a file named aws_creds.yaml (update path below) with the 
@@ -137,7 +137,7 @@
         restrictedSrcAddress: "0.0.0.0/0"
         restrictedSrcAddressApp: "0.0.0.0/0"
         sshKey:  "{{ sshKey }}"
-        environment:  "f5env"
+        environment:  "Demo"
         application:  "f5app"
         customImageId:  "OPTIONAL"
         imageName:  "Best25Mbps"
