@@ -10,12 +10,13 @@
 # Note that you must change the following four variables to suit your deployment.
 # The uk_se_name and stack_name are used to identify your deployment - if you
 # don't update them, I'll be usung the same tags and might delete your deployment.
+# Finally, do not use spaces or unusual characters in the variable values!
 #
     uk_se_name: arch
     stack_name: ansible-f5-demo-build
 
     az_region: ukwest
-    subnet_start: "10.1"
+    subnet_start: "10.3"
 #    
 #------------------------------------------------------------------------------
 #
@@ -23,8 +24,8 @@
 #
     automation_tool: "ansible"
 
-    rg_name: "{{ stack_name }}-rg"
-    vnet_name: "{{ stack_name }}-vnet"
+    rg_name: "{{ uk_se_name }}-{{ stack_name }}-rg"
+    vnet_name: "{{ uk_se_name }}-{{ stack_name }}-vnet"
     vnet_cidr: "{{ subnet_start }}.0.0/16"
 
     vnet_subnets:
