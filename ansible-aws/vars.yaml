@@ -23,11 +23,6 @@
 #
     automation_tool: "ansible"
 
-    # This is the name of your SSH private key object in AWS - you'll need this
-    # in order to login to the BIG-IPs once booted.  Commands required are
-    # ssh -i ./arch_id_rsa.pub admin@<f5 IP address>
-    # modify auth password admin
-    # save sys config
     sshKey: "arch_id_rsa"
     
     vpc_name: "{{ uk_se_name }}-{{ stack_name }}"

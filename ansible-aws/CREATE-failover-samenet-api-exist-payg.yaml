@@ -13,6 +13,8 @@
     AWS_SECRET_ACCESS_KEY: "{{ ec2_secret_key }}"
     AWS_REGION: "{{ aws_region }}"
 
+    
+
 #------------------------------------------------------------------------------
 # Load Variables from files 
 #------------------------------------------------------------------------------
@@ -25,6 +27,7 @@
   #
   vars_files:
     - ../../creds/aws_creds.yaml
+    - ../../creds/big_creds.yaml
     - ./vars.yaml
 
 #------------------------------------------------------------------------------
@@ -115,11 +118,6 @@
           gateway_id: "{{ vpc_gateway_id }}"
 
 
-#  - name: DEBUG ALL VARS
-#    debug:
-#      msg: "{{ vars }}"
-
-
   - name: CREATE ANSIBLE CFT DEPLOYMENT
     cloudformation:
       stack_name: "{{ stack_name }}"
@@ -150,6 +148,45 @@
         automated: "{{ automation_tool }}"
         stack: "{{ stack_name }}"
         UK-SE: "{{ uk_se_name }}"
+    register: result 
+
+
+  - name: GATHER FACTS FROM CFT OUTPUT - NEED BIG-IP PUBLIC IPS 
+    cloudformation_facts:
+      stack_name: "{{ stack_name }}"
+    register: my_stack
+
+
+  - name: SSH TO BIG-IPS AND ENABLE PASSWORD AUTH
+    bigip_command:
+      commands:
+        - modify auth user "{{ bigip_user }}" password "{{ bigip_pass }}" 
+        - save sys config
+      wait_for:
+        - result[1] contains done
+      provider:
+        server: "{{ item }}"
+        user: "{{ bigip_user }}"
+        password: "{{ bigip_pass }}"
+        transport: cli
+        ssh_keyfile: "{{ ssh_key_file }}"
+        validate_certs: no
+    register: ssh_output
+    delegate_to: localhost
+    loop:
+      - "{{ my_stack.ansible_facts.cloudformation[stack_name].stack_outputs.Bigip1ManagementEipAddress }}"
+      - "{{ my_stack.ansible_facts.cloudformation[stack_name].stack_outputs.Bigip2ManagementEipAddress }}"
+
+  - name: DEBUG ALL VARS
+    debug:
+      msg: "You should now be able to login to the BIG-IP on https://{{ item }}"
+    loop:
+      - "{{ my_stack.ansible_facts.cloudformation[stack_name].stack_outputs.Bigip1ManagementEipAddress }}"
+      - "{{ my_stack.ansible_facts.cloudformation[stack_name].stack_outputs.Bigip2ManagementEipAddress }}"
+
+#  - name: DEBUG ALL VARS
+#    debug:
+#      msg: "{{ vars }}"
 
 #------------------------------------------------------------------------------
 # End tasks

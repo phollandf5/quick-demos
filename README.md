@@ -12,3 +12,12 @@
 There are instructions contained within each playbook, and within the vars files.  The instructions in the playbook tell you how to declare your credentials.
 
 Do not put them in any file of folder contained in this repo.
+
+You might need to disable host_key_checking.
+
+Create /etc/ansible directory if it doesn't exist.
+Create /etc/ansible/ansible.cfg if it doesn't exist and add the following three lines:
+
+[defaults]
+private_key_file = 
+host_key_checking = False
