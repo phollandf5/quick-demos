@@ -1,3 +1,4 @@
+---
 #------------------------------------------------------------------------------
 # Playbook to DELETE Azure demo environment.  
 #------------------------------------------------------------------------------
@@ -47,13 +48,14 @@
       client_id: "{{ az_client_id }}"
       tenant: "{{ az_tenant }}"
       secret: "{{ az_secret }}"
+    ignore_errors: True
 
   - name: DELETE RESOURCE GROUP
     azure_rm_resourcegroup:
       state: absent
       name: "{{ rg_name }}"
       location: "{{ az_region }}"
-
+    ignore_errors: True
 
 
   - name: DELETE VNET
@@ -63,6 +65,7 @@
       resource_group: "{{ rg_name }}"
       address_prefixes_cidr:
           - "{{ vnet_cidr }}"
+    ignore_errors: True
 
 
   - name: DELETE SUBNET
@@ -74,6 +77,7 @@
       address_prefix_cidr: "{{ item.value.cidr }}"
     with_dict: "{{ vnet_subnets }}"
     register: create_vnet_subnets
+    ignore_errors: True
  
 
 #------------------------------------------------------------------------------
@@ -85,3 +89,4 @@
 #------------------------------------------------------------------------------
 # End
 #------------------------------------------------------------------------------
+...
