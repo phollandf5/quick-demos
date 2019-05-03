@@ -19,7 +19,7 @@ To allow Ansible to SSH to BIG-IPs in AWS (to change initial password and enable
  - create /etc/ansible directory if it doesn't exist.
  - create /etc/ansible/ansible.cfg if it doesn't exist and add the following three lines:
 
-  [defaults]
-  private_key_file = 
-  host_key_checking = False
+  [defaults]/n
+  private_key_file = /n
+  host_key_checking = False/n
 
