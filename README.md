@@ -1,4 +1,4 @@
- These playbooks are provided to sping a quick demo environment up in Azure or AWS.
+ These playbooks are provided to spin up a quick demo environment up in Azure or AWS.
 
  If you have ansible installed, you can run the playbooks with:
 
