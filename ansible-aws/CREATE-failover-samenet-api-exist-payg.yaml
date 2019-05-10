@@ -1,6 +1,6 @@
 ---
 #------------------------------------------------------------------------------
-# Playbook to CREATE AWS demo environment. 
+# Playbook to CREATE AWS demo environment
 #------------------------------------------------------------------------------
 
 - name: PROVISION VPC SUBNETS & F5 INSTANCES
