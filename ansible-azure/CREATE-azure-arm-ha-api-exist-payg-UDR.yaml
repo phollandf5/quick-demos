@@ -100,7 +100,7 @@
         adminPasswordOrKey:
           value: "{{ f5_admin_pass }}"
         dnsLabel:
-          value: arch-f5
+          value: "{{ uk_se_name }}"
         instanceName:
           value: big-ip
         instanceType:
